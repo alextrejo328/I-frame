@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard Ultra Clock</title>
+    <style>
+        /* --- RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        /* --- FONDO DINÁMICO --- */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #fff;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* El fondo se maneja con el slider */
+            background: #0f2027; 
+        }
+
+        .background-slider {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0; /* Inicialmente transparente */
+            transition: opacity 2s ease-in-out; /* Transición suave de 2 segundos */
+            z-index: -1; /* Mantiene el fondo detrás de todo */
+        }
+        
+        /* --- BOTÓN FULLSCREEN --- */
+        .fullscreen-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255,255,255,0.7);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .fullscreen-btn:hover { background: rgba(255, 255, 255, 0.3); color: white; transform: scale(1.1); }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .dashboard-container {
+            display: flex;
+            width: 96vw;
+            height: 92vh;
+            gap: 15px;
+            z-index: 10; /* Asegura que el contenido esté encima del fondo */
+        }
+
+        /* --- COLUMNAS (sin cambios) --- */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            width: 60%;
+            gap: 15px;
+        }
+
+        .right-column {
+            width: 40%;
+            display: flex;
+        }
+
+        /* --- ESTILO CRISTAL COMÚN (TRANSPARENCIA AUMENTADA) --- */
+        .glass-widget {
+            /* CORRECCIÓN DE ERROR VISUAL: 
+                Anteriormente, algunos navegadores mostraban un texto al pie de la página
+                debido a una convención de marcado que ya no se usa. 
+                Usar 'position: relative;' aquí ayuda a estabilizar la estructura 
+                y eliminar posibles artefactos. 
+            */
+            position: relative; 
+            background: rgba(255, 255, 255, 0.04); 
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* --- WIDGET 1: HORA (sin cambios) --- */
+        .time-widget {
+            flex: 2;
+        }
+
+        .time-text {
+            font-size: 18vh;
+            font-weight: 900;
+            line-height: 0.8;
+            letter-spacing: -6px;
+            text-shadow: 0 0 50px rgba(255,255,255,0.25);
+            font-variant-numeric: tabular-nums;
+            display: flex;
+            align-items: center;
+        }
+
+        .blink { 
+            animation: blinker 1s step-start infinite; 
+            margin-top: -1vh;
+        }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- WIDGET 2: INFO (FECHA Y CLIMA) (sin cambios) --- */
+        .info-widget {
+            flex: 1;
+            flex-direction: row;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .date-group {
+            text-align: right;
+            border-right: 2px solid rgba(255,255,255,0.15);
+            padding-right: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .date-day { font-size: 4vh; font-weight: 700; text-transform: capitalize; line-height: 1.1; }
+        .date-full { font-size: 1.8vh; opacity: 0.7; }
+
+        .weather-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+        }
+        .w-icon { font-size: 5vh; }
+        .w-temp { font-size: 5vh; font-weight: 600; line-height: 1; }
+        .w-desc { font-size: 1.5vh; opacity: 0.8; text-transform: capitalize; }
+
+        /* --- WIDGET 3: CALENDARIO (sin cambios) --- */
+        .calendar-widget {
+            width: 100%;
+            padding: 15px;
+            justify-content: flex-start;
+        }
+
+        .cal-header {
+            width: 100%;
+            text-align: center;
+            font-size: 2.2vh;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            width: 100%;
+            flex-grow: 1;
+            align-content: start;
+        }
+
+        .cal-day-label {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.4vh;
+            opacity: 0.5;
+            margin-bottom: 4px;
+        }
+
+        .cal-cell {
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8vh;
+            border-radius: 50%;
+            cursor: default;
+        }
+
+        .today {
+            background: #fff;
+            color: #0f2027;
+            font-weight: 900;
+            box-shadow: 0 0 15px rgba(255,255,255,0.7);
+        }
+
+        /* --- RESPONSIVE ADJUSTMENTS (Se mantienen los últimos ajustes) --- */
+        
+        /* 1. MÓVIL VERTICAL (PORTRAIT) */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .dashboard-container { flex-direction: column; }
+            .left-column, .right-column { width: 100%; }
+            .left-column { flex: 55; }
+            .right-column { flex: 45; }
+            
+            .time-text { font-size: 14vh; letter-spacing: -3px; }
+            .info-widget { flex-direction: row; justify-content: space-evenly; gap: 10px; }
+            .date-group { text-align: right; border-right: 1px solid rgba(255,255,255,0.2); }
+            .date-day { font-size: 3.5vh; }
+        }
+
+        /* 2. MÓVIL HORIZONTAL (LANDSCAPE) - MODO ULTRA CLOCK (FINAL) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .dashboard-container {
+                flex-direction: row;
+                gap: 10px;
+                padding: 5px;
+            }
+            
+            /* Damos prioridad horizontal al reloj */
+            .left-column { width: 62%; gap: 8px; }
+            .right-column { width: 38%; }
+
+            /* Ajuste vertical dentro de la columna izquierda */
+            .time-widget { flex: 60; padding: 0; } 
+            .info-widget { flex: 40; padding: 5px 15px; }
+
+            /* FUENTE EXTREMA */
+            .time-text { 
+                font-size: 38vh;
+                line-height: 0.75;
+                letter-spacing: -1.5vh;
+            }
+            .blink { margin-top: -2vh; }
+
+            /* Ajuste info para que no pelee con el reloj (AUMENTADO) */
+            .date-day { font-size: 8vh; line-height: 0.9; } 
+            .date-full { font-size: 2.5vh; } 
+            .w-temp { font-size: 8vh; } 
+            .w-icon { font-size: 8vh; } 
+            .w-desc { 
+                display: block;
+                font-size: 2vh; 
+            } 
+
+            /* Calendario compacto */
+            .calendar-widget { padding: 8px; }
+            .cal-header { font-size: 3vh; margin-bottom: 5px; padding-bottom: 2px; }
+            .cal-cell { font-size: 3.2vh; }
+            .cal-day-label { font-size: 2vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-slider" id="bg-slider"></div>
+
+    <button class="fullscreen-btn" onclick="toggleFull()" title="Pantalla completa">⛶</button>
+
+    <div class="dashboard-container">
+        
+        <div class="left-column">
+            
+            <div class="glass-widget time-widget">
+                <div class="time-text">
+                    <span id="hh">00</span><span class="blink">:</span><span id="mm">00</span>
+                </div>
+            </div>
+
+            <div class="glass-widget info-widget">
+                <div class="date-group">
+                    <div class="date-day" id="day-name">Día</div>
+                    <div class="date-full" id="full-date">...</div>
+                </div>
+                <div class="weather-group">
+                    <div class="w-icon" id="w-icon">...</div>
+                    <div>
+                        <div class="w-temp" id="w-temp">--°</div>
+                        <div class="w-desc" id="w-desc">Cargando...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right-column">
+            <div class="glass-widget calendar-widget">
+                <div class="cal-header" id="month-year">Calendario</div>
+                <div class="cal-grid" id="cal-grid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // -----------------------------------------------------
+        // 0. CONFIGURACIÓN DEL FONDO (Alojamiento Remoto Estable)
+        // -----------------------------------------------------
+        
+        // RECOMENDACIÓN: Usar URLs de imágenes alojadas en un servicio CDN estable
+        // (como GitHub Pages, Imgur, o un servicio de fotos de prueba como Unsplash Source)
+        // en lugar de enlaces locales o Drive.
+        
+        // Estas son URLs de prueba para asegurar que la funcionalidad base funciona.
+        // REEMPLAZA ESTAS POR LAS URLs PÚBLICAS Y ESTABLES DE TUS PROPIAS FOTOS.
+        const BACKGROUND_IMAGES = [
+            'https://source.unsplash.com/random/1920x1080?cityscape',
+            'https://source.unsplash.com/random/1920x1080?nature',
+            'https://source.unsplash.com/random/1920x1080?abstract',
+        ];
+        
+        const BACKGROUND_CHANGE_INTERVAL = 10000; 
+        const TRANSITION_DURATION = 2000; 
+        let currentImageIndex = 0;
+
+        function changeBackground() {
+            const slider = document.getElementById('bg-slider');
+            
+            // 1. Ocultar la imagen actual (fade out)
+            slider.style.opacity = 0; 
+            
+            // 2. Esperar la duración de la transición antes de cambiar la fuente
+            setTimeout(() => {
+                // 3. Obtener la siguiente imagen
+                currentImageIndex = (currentImageIndex + 1) % BACKGROUND_IMAGES.length;
+                const imageUrl = BACKGROUND_IMAGES[currentImageIndex];
+                
+                // 4. Cambiar la imagen de fondo 
+                // Precarga de imagen: Usar Image() evita el parpadeo de la carga
+                const img = new Image();
+                img.onload = () => {
+                    slider.style.backgroundImage = `url('${imageUrl}')`;
+                    // 5. Mostrar la nueva imagen (fade in)
+                    slider.style.opacity = 1;
+                };
+                img.src = imageUrl;
+
+                // En caso de que la URL de la imagen falle, intentamos cargar la siguiente
+                img.onerror = () => {
+                    console.error("Fallo al cargar la imagen:", imageUrl);
+                    // Llama a la función de nuevo para intentar con la siguiente imagen
+                    changeBackground(); 
+                };
+
+            }, TRANSITION_DURATION); 
+        }
+
+        // -----------------------------------------------------
+        // 1. RELOJ & FECHA
+        // -----------------------------------------------------
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('hh').innerText = String(now.getHours()).padStart(2,'0');
+            document.getElementById('mm').innerText = String(now.getMinutes()).padStart(2,'0');
+            
+            const dayName = now.toLocaleDateString('es-ES', { weekday: 'long' });
+            document.getElementById('day-name').innerText = dayName;
+            document.getElementById('full-date').innerText = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+        }
+
+        // -----------------------------------------------------
+        // 2. CALENDARIO
+        // -----------------------------------------------------
+        function buildCalendar() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const today = now.getDate();
+            
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            document.getElementById('month-year').innerText = `${monthNames[month]} ${year}`;
+
+            const grid = document.getElementById('cal-grid');
+            grid.innerHTML = '';
+
+            ['D','L','M','M','J','V','S'].forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'cal-day-label';
+                el.innerText = d;
+                grid.appendChild(el);
+            });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
+
+            for(let i=1; i<=daysInMonth; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cal-cell';
+                cell.innerText = i;
+                if(i === today) cell.classList.add('today');
+                grid.appendChild(cell);
+            }
+        }
+
+        // -----------------------------------------------------
+        // 3. CLIMA REAL (Open-Meteo)
+        // -----------------------------------------------------
+
+        const LAT = 19.34537; 
+        const LON = -99.12317; 
+        const WEATHER_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&forecast_days=1&timezone=America%2FMexico_City`;
+
+        const WMO_MAP = {
+            0: { icon: '☀️', desc: 'Despejado' }, 1: { icon: '🌤️', desc: 'Mayormente despejado' },
+            2: { icon: '⛅', desc: 'Parcialmente nublado' }, 3: { icon: '☁️', desc: 'Nublado' },
+            45: { icon: '🌫️', desc: 'Niebla' }, 48: { icon: '🌫️', desc: 'Niebla con escarcha' },
+            51: { icon: '🌧️', desc: 'Llovizna ligera' }, 53: { icon: '🌧️', desc: 'Llovizna moderada' },
+            55: { icon: '🌧️', desc: 'Llovizna densa' }, 61: { icon: '🌧️', desc: 'Lluvia ligera' },
+            63: { icon: '🌧️', desc: 'Lluvia moderada' }, 65: { icon: '⛈️', desc: 'Lluvia fuerte' },
+            71: { icon: '❄️', desc: 'Nevada ligera' }, 73: { icon: '❄️', desc: 'Nevada moderada' },
+            75: { icon: '🌨️', desc: 'Nevada fuerte' }, 80: { icon: '☔', desc: 'Chubascos ligeros' },
+            81: { icon: '☔', desc: 'Chubascos moderados' }, 82: { icon: '⛈️', desc: 'Chubascos violentos' },
+            95: { icon: '⛈️', desc: 'Tormenta' }, 96: { icon: '⛈️', desc: 'Tormenta con granizo' },
+            99: { icon: '⛈️', desc: 'Tormenta con granizo fuerte' },
+        };
+
+        async function fetchWeather() {
+            try {
+                const response = await fetch(WEATHER_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                
+                const { temperature, weathercode } = data.current_weather;
+                const weatherInfo = WMO_MAP[weathercode] || { icon: '❓', desc: 'Desconocido' };
+
+                document.getElementById('w-icon').innerText = weatherInfo.icon;
+                document.getElementById('w-temp').innerText = Math.round(temperature) + '°'; 
+                document.getElementById('w-desc').innerText = weatherInfo.desc;
+
+            } catch (error) {
+                console.error("Error al obtener el clima:", error);
+                document.getElementById('w-icon').innerText = '❌';
+                document.getElementById('w-temp').innerText = 'ERR';
+                document.getElementById('w-desc').innerText = 'No hay datos';
+            }
+        }
+
+        function updateWeather() {
+            fetchWeather();
+        }
+
+        function toggleFull() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        // -----------------------------------------------------
+        // INICIAR
+        // -----------------------------------------------------
+        
+        // Iniciar reloj, calendario y clima
+        updateClock(); setInterval(updateClock, 1000);
+        buildCalendar();
+        updateWeather(); 
+        setInterval(updateWeather, 900000); // Clima cada 15 minutos
+
+        // Iniciar el cambio de fondo
+        changeBackground(); 
+        setInterval(changeBackground, BACKGROUND_CHANGE_INTERVAL); 
+    </script>
+</body>
+</html>
+
