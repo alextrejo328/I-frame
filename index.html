@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard Ultra Clock</title>
-    <meta name="apple-mobile-web-app-capable" content="yes"> 
     <style>
         /* --- RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -161,9 +160,7 @@
         .cal-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 1.8vh; border-radius: 50%; cursor: default; }
         .today { background: #fff; color: #0f2027; font-weight: 900; box-shadow: 0 0 15px rgba(255,255,255,0.7); }
 
-        /* --- RESPONSIVE ADJUSTMENTS --- */
-        
-        /* 1. Ajustes para Teléfonos (Portrait) */
+        /* --- RESPONSIVE ADJUSTMENTS (omitted for brevity) --- */
         @media (max-width: 768px) and (orientation: portrait) {
             .dashboard-container { flex-direction: column; }
             .left-column, .right-column { width: 100%; }
@@ -176,76 +173,23 @@
             .date-day { font-size: 3.5vh; }
         }
 
-        /* 2. Ajustes de estabilidad para PANTALLAS CORTAS (Landscape) */
         @media (max-height: 500px) and (orientation: landscape) {
             .left-column { width: 62%; gap: 8px; }
             .right-column { width: 38%; }
             .time-widget { flex: 60; padding: 0; } 
             .info-widget { flex: 40; padding: 5px 15px; }
-            /* Corregido de 38vh a 18vh para evitar desbordes */
-            .time-text { font-size: 18vh; line-height: 0.75; letter-spacing: -1.5vh; }
+            .time-text { font-size: 38vh; line-height: 0.75; letter-spacing: -1.5vh; }
             .blink { margin-top: -2vh; }
-            .date-day { font-size: 5vh; line-height: 0.9; } 
-            .date-full { font-size: 2vh; } 
-            .w-temp { font-size: 5vh; } 
-            .w-icon { font-size: 5vh; } 
-            .w-desc { display: block; font-size: 1.8vh; } 
-            .ampm-text { font-size: 4vh; margin-bottom: 2vh; }
-            .calendar-widget { padding: 8px; }
-            .cal-header { font-size: 2.5vh; margin-bottom: 5px; padding-bottom: 2px; }
-            .cal-cell { font-size: 2.8vh; }
-            .cal-day-label { font-size: 1.8vh; }
-        }
-
-        /* 3. Ajustes para Tablets (min-width: 769px) - MAXIMIZADO PARA IPAD */
-        @media (min-width: 769px) and (max-width: 1300px) and (min-height: 500px) {
-            
-            /* Ajuste de Contenedor */
-            .dashboard-container { 
-                width: 96vw; 
-                height: 96vh;
-                gap: 15px; 
-            }
-            
-            /* Ajuste de Columnas: */
-            .left-column { 
-                width: 65%; /* Más espacio para la hora y el clima */
-                gap: 20px;
-            } 
-            .right-column { 
-                width: 35%; /* Calendario */
-            }
-
-            /* RELOJ: Maximizado (25vh) */
-            .time-widget { 
-                flex: 2; /* Más grande */
-            }
-            .time-text {
-                font-size: 25vh; /* Aumentado drásticamente */
-                letter-spacing: -6px;
-            }
-            .ampm-text {
-                font-size: 4vh; 
-                margin-bottom: 3vh;
-                padding-bottom: 5px;
-            }
-            
-            /* INFO: Fecha y Clima (Asegurando que todo se vea) */
-            .info-widget { 
-                flex: 1; 
-                padding: 20px 30px; 
-            }
-            .date-group { padding-right: 25px; }
-            .date-day { font-size: 5vh; } 
+            .date-day { font-size: 8vh; line-height: 0.9; } 
             .date-full { font-size: 2.5vh; } 
-            .w-temp, .w-icon { font-size: 6vh; } 
-            .w-desc { font-size: 2vh; }
-
-            /* CALENDARIO: Maximizando legibilidad */
-            .calendar-widget { padding: 20px; }
-            .cal-header { font-size: 3.5vh; margin-bottom: 15px; } /* Grande */
-            .cal-day-label { font-size: 2vh; } 
-            .cal-cell { font-size: 2.8vh; } /* Números grandes */
+            .w-temp { font-size: 8vh; } 
+            .w-icon { font-size: 8vh; } 
+            .w-desc { display: block; font-size: 2vh; } 
+            .ampm-text { font-size: 6vh; margin-bottom: 2vh; }
+            .calendar-widget { padding: 8px; }
+            .cal-header { font-size: 3vh; margin-bottom: 5px; padding-bottom: 2px; }
+            .cal-cell { font-size: 3.2vh; }
+            .cal-day-label { font-size: 2vh; }
         }
     </style>
 </head>
