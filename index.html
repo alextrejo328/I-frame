@@ -176,10 +176,10 @@
             .date-day { font-size: 3.5vh; }
         }
 
-        /* 2. Ajustes para Teléfonos/Tablets (Landscape - Baja altura) - CLAVE PARA IPAD MINI */
+        /* 2. Ajustes para Teléfonos/Tablets (Landscape - Baja altura) */
         @media (max-height: 500px) and (orientation: landscape) {
             .left-column { 
-                width: 60%; /* Reajustado para dar más espacio a la derecha */
+                width: 60%; 
                 gap: 8px; 
             }
             .right-column { 
@@ -187,15 +187,12 @@
             }
             .time-widget { flex: 60; padding: 0; } 
             .info-widget { flex: 40; padding: 5px 15px; }
-            /* Tamaño de fuente corregido a 16vh (de 38vh) para evitar desborde */
             .time-text { 
                 font-size: 16vh; 
                 line-height: 0.8; 
                 letter-spacing: -1vh; 
             } 
             .blink { margin-top: -1vh; }
-            
-            /* Ajustes menores de tamaño */
             .date-day { font-size: 4vh; line-height: 0.9; } 
             .date-full { font-size: 1.8vh; } 
             .w-temp { font-size: 4vh; } 
@@ -208,30 +205,49 @@
             .cal-day-label { font-size: 1.5vh; }
         }
 
-        /* 3. Ajustes para Tablets grandes (opcional, manteniendo el original para otros tablets) */
+        /* 3. Ajustes para Tablets (min-width: 769px) - MAXIMIZADO PARA IPAD */
         @media (min-width: 769px) and (max-width: 1300px) and (min-height: 500px) {
+            
+            /* Ajuste de Contenedor */
+            .dashboard-container { 
+                width: 98vw; 
+                height: 98vh;
+                gap: 20px; /* Mayor separación */
+            }
+            
+            /* Ajuste de Columnas: */
+            .left-column { 
+                width: 65%; 
+                gap: 20px;
+            } 
+            .right-column { 
+                width: 35%; 
+            }
+
+            /* HORA: Aumentada */
             .time-text {
-                font-size: 15vh; 
-                letter-spacing: -4px;
+                font-size: 25vh; /* Aumentado de 15vh a 25vh */
+                letter-spacing: -6px;
             }
             .ampm-text {
-                font-size: 2.5vh; 
-                margin-bottom: 1.5vh;
+                font-size: 4vh; 
+                margin-bottom: 4vh;
                 padding-bottom: 5px;
             }
-            .dashboard-container { 
-                width: 95vw; 
-                height: 95vh;
-                gap: 10px;
-            }
-            .left-column { width: 65%; } 
-            .right-column { width: 35%; }
             
-            .date-day { font-size: 3.5vh; }
-            .w-temp { font-size: 4.5vh; } 
-            .w-icon { font-size: 4.5vh; } 
-            .cal-header { font-size: 2vh; }
-            .cal-cell { font-size: 1.6vh; }
+            /* INFO: Fecha y Clima (Mejorado) */
+            .info-widget { flex: 0.7; }
+            .date-group { padding-right: 30px; }
+            .date-day { font-size: 5vh; } 
+            .date-full { font-size: 2.2vh; } 
+            .w-temp, .w-icon { font-size: 6vh; } 
+            .w-desc { font-size: 2vh; }
+
+            /* CALENDARIO: Aumentado (Muy importante para la legibilidad) */
+            .calendar-widget { padding: 20px; }
+            .cal-header { font-size: 3vh; margin-bottom: 15px; } 
+            .cal-day-label { font-size: 1.8vh; } 
+            .cal-cell { font-size: 2.5vh; } 
         }
     </style>
 </head>
@@ -431,8 +447,4 @@
             // Tarea repetida: Reloj y Fondo (cada segundo)
             setInterval(updateClock, 1000);
 
-            // Tarea repetida: Calendario (cada hora)
-            setInterval(buildCalendar, 3600000); 
-
-            // Tarea repetida: Clima y Fondo (cada
-        
+            // Tarea rep
