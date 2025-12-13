@@ -8,9 +8,12 @@
         /* --- RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
-        /* --- FONDO DINÁMICO --- */
+        /* --- FONDO RESTAURADO Y ANIMADO --- */
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* Tonos profundos y modernos */
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
             color: #fff;
             height: 100vh;
             width: 100vw;
@@ -18,23 +21,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* El fondo se maneja con el slider */
-            background: #0f2027; 
         }
 
-        .background-slider {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            opacity: 0; /* Inicialmente transparente */
-            transition: opacity 2s ease-in-out; /* Transición suave de 2 segundos */
-            z-index: -1; /* Mantiene el fondo detrás de todo */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        
+
         /* --- BOTÓN FULLSCREEN --- */
         .fullscreen-btn {
             position: absolute;
@@ -61,7 +55,6 @@
             width: 96vw;
             height: 92vh;
             gap: 15px;
-            z-index: 10; /* Asegura que el contenido esté encima del fondo */
         }
 
         /* --- COLUMNAS (sin cambios) --- */
@@ -77,22 +70,41 @@
             display: flex;
         }
 
-        /* --- ESTILO CRISTAL COMÚN (TRANSPARENCIA ALTA) --- */
+        /* --- ESTILO CRISTAL MEJORADO (Mayor opacidad y reflejo) --- */
         .glass-widget {
             position: relative; 
-            background: rgba(255, 255, 255, 0.04); 
+            overflow: hidden; /* Necesario para contener el reflejo */
+            background: rgba(255, 255, 255, 0.15); /* Mayor Opacidad (más visible) */
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Borde más visible */
             border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Sombra más fuerte */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
         }
 
-        /* --- WIDGET 1: HORA (MODIFICADO) --- */
+        /* Reflejo dinámico (Shine effect) */
+        .glass-widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1); /* Color del reflejo */
+            transform: skewX(-20deg);
+            animation: shine 8s infinite linear; /* Velocidad del reflejo */
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 150%; }
+        }
+
+        /* --- WIDGET 1: HORA --- */
         .time-widget {
             flex: 2;
         }
@@ -114,7 +126,7 @@
         }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        /* Nueva: indicador de 12hr */
+        /* Indicador de 12hr */
         .ampm-text {
             font-size: 3vh; 
             font-weight: 600;
@@ -123,7 +135,7 @@
             padding-bottom: 10px;
         }
 
-        /* --- WIDGET 2: INFO (FECHA Y CLIMA) (sin cambios) --- */
+        /* --- WIDGET 2: INFO (FECHA Y CLIMA) --- */
         .info-widget {
             flex: 1;
             flex-direction: row;
@@ -203,7 +215,7 @@
             box-shadow: 0 0 15px rgba(255,255,255,0.7);
         }
 
-        /* --- RESPONSIVE ADJUSTMENTS --- */
+        /* --- RESPONSIVE ADJUSTMENTS (finales) --- */
         
         /* 1. MÓVIL VERTICAL (PORTRAIT) */
         @media (max-width: 768px) and (orientation: portrait) {
@@ -267,8 +279,6 @@
 </head>
 <body>
 
-    <div class="background-slider" id="bg-slider"></div>
-
     <button class="fullscreen-btn" onclick="toggleFull()" title="Pantalla completa">⛶</button>
 
     <div class="dashboard-container">
@@ -307,79 +317,8 @@
     </div>
 
     <script>
-        // --- FUNCIÓN DE UTILIDAD PARA RUTAS (CORRECCIÓN FINAL) ---
-        // Asegura que las rutas funcionen en GitHub Pages y en cualquier dominio
-        function getBasePath() {
-            const path = window.location.pathname;
-            const parts = path.split('/');
-            if (parts.length > 2 && parts[1]) {
-                return `/${parts[1]}/`;
-            }
-            return '/';
-        }
-        const BASE_PATH = getBasePath();
-
         // -----------------------------------------------------
-        // 0. CONFIGURACIÓN DEL FONDO 
-        // -----------------------------------------------------
-        
-        // ¡IMPORTANTE! Se antepone BASE_PATH para la ruta de GitHub Pages.
-        // Asumiendo que tus archivos se llaman foto1.jpg, foto2.jpg, etc.
-        const BACKGROUND_IMAGES = [
-            BASE_PATH + 'img/foto1.jpg',
-            BASE_PATH + 'img/foto2.jpg',
-            BASE_PATH + 'img/foto3.jpg',
-            BASE_PATH + 'img/foto4.jpg',
-            BASE_PATH + 'img/foto5.jpg',
-            BASE_PATH + 'img/foto6.jpg',
-            BASE_PATH + 'img/foto7.jpg',
-            BASE_PATH + 'img/foto8.jpg',
-            BASE_PATH + 'img/foto9.jpg',
-            BASE_PATH + 'img/foto10.jpg',
-            BASE_PATH + 'img/foto11.jpg',
-            BASE_PATH + 'img/foto12.jpg',
-            BASE_PATH + 'img/foto13.jpg',
-            BASE_PATH + 'img/foto14.jpg',
-            BASE_PATH + 'img/foto15.jpg',
-            BASE_PATH + 'img/foto16.jpg',
-        ];
-        
-        const BACKGROUND_CHANGE_INTERVAL = 10000; // 10 segundos
-        const TRANSITION_DURATION = 2000; // 2 segundos
-        let currentImageIndex = 0;
-
-        function changeBackground() {
-            const slider = document.getElementById('bg-slider');
-            
-            // 1. Ocultar la imagen actual (fade out)
-            slider.style.opacity = 0; 
-            
-            // 2. Esperar la duración de la transición antes de cambiar la fuente
-            setTimeout(() => {
-                // 3. Obtener la siguiente imagen
-                currentImageIndex = (currentImageIndex + 1) % BACKGROUND_IMAGES.length;
-                const imageUrl = BACKGROUND_IMAGES[currentImageIndex];
-                
-                // 4. Precargar la imagen antes de mostrarla para evitar el parpadeo
-                const img = new Image();
-                img.onload = () => {
-                    slider.style.backgroundImage = `url('${imageUrl}')`;
-                    // 5. Mostrar la nueva imagen (fade in)
-                    slider.style.opacity = 1;
-                };
-                img.src = imageUrl;
-
-                img.onerror = () => {
-                    console.error("Fallo al cargar la imagen:", imageUrl);
-                    // Si falla una, intenta con la siguiente inmediatamente
-                    changeBackground(); 
-                };
-
-            }, TRANSITION_DURATION); 
-        }
-
-        // -----------------------------------------------------
-        // 1. RELOJ & FECHA (ACTUALIZADO A 12 HORAS)
+        // 1. RELOJ & FECHA (CORREGIDO A 12 HORAS)
         // -----------------------------------------------------
         function updateClock() {
             const now = new Date();
@@ -402,7 +341,7 @@
         }
 
         // -----------------------------------------------------
-        // 2. CALENDARIO
+        // 2. CALENDARIO Y FECHA COMPLETA (CORREGIDO: Ahora se actualiza diariamente)
         // -----------------------------------------------------
         function buildCalendar() {
             const now = new Date();
@@ -496,15 +435,17 @@
         // INICIAR
         // -----------------------------------------------------
         
-        // Iniciar reloj, calendario y clima
-        updateClock(); setInterval(updateClock, 1000);
-        buildCalendar();
-        updateWeather(); 
-        setInterval(updateWeather, 900000); // Clima cada 15 minutos
+        // Reloj y fecha actualizándose cada segundo
+        updateClock(); 
+        setInterval(updateClock, 1000);
 
-        // Iniciar el cambio de fondo
-        changeBackground(); 
-        setInterval(changeBackground, BACKGROUND_CHANGE_INTERVAL); 
+        // Calendario (y el día actual) se actualiza cada 60 minutos
+        buildCalendar(); 
+        setInterval(buildCalendar, 3600000); // 3,600,000 ms = 1 hora
+
+        // Clima cada 15 minutos
+        updateWeather(); 
+        setInterval(updateWeather, 900000); 
     </script>
 </body>
 </html>
