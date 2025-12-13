@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard Ultra Clock</title>
+    <meta name="apple-mobile-web-app-capable" content="yes"> 
     <style>
         /* --- RESET --- */
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -160,7 +161,9 @@
         .cal-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 1.8vh; border-radius: 50%; cursor: default; }
         .today { background: #fff; color: #0f2027; font-weight: 900; box-shadow: 0 0 15px rgba(255,255,255,0.7); }
 
-        /* --- RESPONSIVE ADJUSTMENTS (omitted for brevity) --- */
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        
+        /* 1. Ajustes para Teléfonos (Portrait) */
         @media (max-width: 768px) and (orientation: portrait) {
             .dashboard-container { flex-direction: column; }
             .left-column, .right-column { width: 100%; }
@@ -173,12 +176,14 @@
             .date-day { font-size: 3.5vh; }
         }
 
+        /* 2. Ajustes para Teléfonos (Landscape) - Modificado para reducir el tamaño del reloj */
         @media (max-height: 500px) and (orientation: landscape) {
             .left-column { width: 62%; gap: 8px; }
             .right-column { width: 38%; }
             .time-widget { flex: 60; padding: 0; } 
             .info-widget { flex: 40; padding: 5px 15px; }
-            .time-text { font-size: 38vh; line-height: 0.75; letter-spacing: -1.5vh; }
+            /* Reducido de 38vh a 25vh para evitar desbordamiento en pantallas muy cortas */
+            .time-text { font-size: 25vh; line-height: 0.75; letter-spacing: -1.5vh; } 
             .blink { margin-top: -2vh; }
             .date-day { font-size: 8vh; line-height: 0.9; } 
             .date-full { font-size: 2.5vh; } 
@@ -190,6 +195,35 @@
             .cal-header { font-size: 3vh; margin-bottom: 5px; padding-bottom: 2px; }
             .cal-cell { font-size: 3.2vh; }
             .cal-day-label { font-size: 2vh; }
+        }
+
+        /* 3. NUEVO BLOQUE: Ajustes para Tablets (Landscape) - Solución para iPad */
+        @media (min-width: 769px) and (max-width: 1300px) and (min-height: 500px) {
+            .time-text {
+                /* Reducido de 18vh a 15vh para mejor ajuste en iPads */
+                font-size: 15vh; 
+                letter-spacing: -4px;
+            }
+            .ampm-text {
+                font-size: 2.5vh; 
+                margin-bottom: 1.5vh;
+                padding-bottom: 5px;
+            }
+            .dashboard-container { 
+                width: 95vw; 
+                height: 95vh;
+                gap: 10px;
+            }
+            /* Asegura que la columna izquierda no sea demasiado grande en un iPad horizontal */
+            .left-column { width: 65%; } 
+            .right-column { width: 35%; }
+            
+            /* Ajustes en los widgets de información */
+            .date-day { font-size: 3.5vh; }
+            .w-temp { font-size: 4.5vh; } 
+            .w-icon { font-size: 4.5vh; } 
+            .cal-header { font-size: 2vh; }
+            .cal-cell { font-size: 1.6vh; }
         }
     </style>
 </head>
@@ -250,6 +284,7 @@
             const timeKey = isDay ? 'day' : 'night';
             const conditionKey = weatherCondition; 
             
+            // Elimina todas las clases y añade las nuevas
             body.classList.remove('day', 'night', 'clear', 'cloudy', 'rainy'); 
             body.classList.add(timeKey, conditionKey);
         }
@@ -262,15 +297,16 @@
             let h = now.getHours();
             const m = String(now.getMinutes()).padStart(2, '0');
             
+            // Lógica AM/PM
             const ampm = h >= 12 ? 'PM' : 'AM';
-            
             h = h % 12;
-            h = h ? h : 12; 
+            h = h ? h : 12; // La hora '0' (medianoche) se convierte a '12'
             
             document.getElementById('hh').innerText = String(h).padStart(2, '0');
             document.getElementById('mm').innerText = m;
             document.getElementById('ampm').innerText = ampm; 
             
+            // Fecha
             const dayName = now.toLocaleDateString('es-ES', { weekday: 'long' });
             document.getElementById('day-name').innerText = dayName;
             document.getElementById('full-date').innerText = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
@@ -293,6 +329,7 @@
             const grid = document.getElementById('cal-grid');
             grid.innerHTML = '';
 
+            // Etiquetas de los días de la semana (D, L, M, etc.)
             ['D','L','M','M','J','V','S'].forEach(d => {
                 const el = document.createElement('div');
                 el.className = 'cal-day-label';
@@ -300,11 +337,13 @@
                 grid.appendChild(el);
             });
 
-            const firstDay = new Date(year, month, 1).getDay();
+            const firstDay = new Date(year, month, 1).getDay(); // 0 (Domingo) a 6 (Sábado)
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+            // Rellenar espacios vacíos antes del primer día del mes
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
 
+            // Días del mes
             for(let i=1; i<=daysInMonth; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cal-cell';
@@ -318,10 +357,11 @@
         // 3. CLIMA REAL (Open-Meteo)
         // -----------------------------------------------------
 
-        const LAT = 19.34537; 
+        const LAT = 19.34537; // Coordenadas de ejemplo (Cerca de Ciudad de México)
         const LON = -99.12317; 
         const WEATHER_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&forecast_days=1&timezone=America%2FMexico_City`;
 
+        // Mapeo de códigos WMO a iconos y condiciones (Adaptado para mejor legibilidad del código)
         const WMO_MAP = {
             0: { icon: '☀️', desc: 'Despejado', condition: 'clear' }, 1: { icon: '🌤️', desc: 'Mayormente despejado', condition: 'clear' },
             2: { icon: '⛅', desc: 'Parcialmente nublado', condition: 'cloudy' }, 3: { icon: '☁️', desc: 'Nublado', condition: 'cloudy' },
@@ -350,7 +390,7 @@
                 document.getElementById('w-desc').innerText = weatherInfo.desc;
 
                 weatherCondition = weatherInfo.condition; 
-                applyDynamicBackground(); 
+                applyDynamicBackground(); // Reaplicar el fondo basado en la nueva condición
 
             } catch (error) {
                 console.error("Error al obtener el clima:", error);
