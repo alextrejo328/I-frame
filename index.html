@@ -18,6 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* El fondo se maneja con el slider */
             background: #0f2027; 
         }
 
@@ -76,7 +77,7 @@
             display: flex;
         }
 
-        /* --- ESTILO CRISTAL COMÚN (TRANSPARENCIA AUMENTADA) --- */
+        /* --- ESTILO CRISTAL COMÚN (TRANSPARENCIA ALTA) --- */
         .glass-widget {
             position: relative; 
             background: rgba(255, 255, 255, 0.04); 
@@ -91,7 +92,7 @@
             flex-direction: column;
         }
 
-        /* --- WIDGET 1: HORA (sin cambios) --- */
+        /* --- WIDGET 1: HORA (MODIFICADO) --- */
         .time-widget {
             flex: 2;
         }
@@ -104,7 +105,7 @@
             text-shadow: 0 0 50px rgba(255,255,255,0.25);
             font-variant-numeric: tabular-nums;
             display: flex;
-            align-items: center;
+            align-items: flex-end; /* Alinea los elementos al final (AM/PM se alinea abajo) */
         }
 
         .blink { 
@@ -113,7 +114,16 @@
         }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        /* --- WIDGET 2: INFO (FECHA Y CLIMA) (Ajustes de tamaño final) --- */
+        /* Nueva: indicador de 12hr */
+        .ampm-text {
+            font-size: 3vh; 
+            font-weight: 600;
+            margin-left: 10px;
+            margin-bottom: 2vh; /* Ajusta la posición vertical */
+            padding-bottom: 10px;
+        }
+
+        /* --- WIDGET 2: INFO (FECHA Y CLIMA) (sin cambios) --- */
         .info-widget {
             flex: 1;
             flex-direction: row;
@@ -241,6 +251,11 @@
                 display: block;
                 font-size: 2vh; 
             } 
+            /* Se hace más pequeño el AM/PM en landscape */
+            .ampm-text {
+                font-size: 6vh;
+                margin-bottom: 2vh;
+            }
 
             /* Calendario compacto */
             .calendar-widget { padding: 8px; }
@@ -262,7 +277,7 @@
             
             <div class="glass-widget time-widget">
                 <div class="time-text">
-                    <span id="hh">00</span><span class="blink">:</span><span id="mm">00</span>
+                    <span id="hh">00</span><span class="blink">:</span><span id="mm">00</span><span id="ampm" class="ampm-text">AM</span>
                 </div>
             </div>
 
@@ -292,27 +307,24 @@
     </div>
 
     <script>
-        // --- FUNCIÓN DE UTILIDAD PARA RUTAS (CORREGIDA) ---
-        // Obtiene la ruta base del repositorio (e.g., /nombre-repo/)
+        // --- FUNCIÓN DE UTILIDAD PARA RUTAS (CORRECCIÓN FINAL) ---
+        // Asegura que las rutas funcionen en GitHub Pages y en cualquier dominio
         function getBasePath() {
             const path = window.location.pathname;
-            // Busca el nombre del repositorio en la URL
             const parts = path.split('/');
-            // Si el nombre del repositorio está presente, lo devuelve con barras
             if (parts.length > 2 && parts[1]) {
                 return `/${parts[1]}/`;
             }
-            // Para URLs de dominio personalizado (root)
             return '/';
         }
         const BASE_PATH = getBasePath();
 
         // -----------------------------------------------------
-        // 0. CONFIGURACIÓN DEL FONDO (USANDO RUTAS CORREGIDAS)
+        // 0. CONFIGURACIÓN DEL FONDO 
         // -----------------------------------------------------
         
-        // ¡IMPORTANTE! Se antepone BASE_PATH para que la ruta funcione en GitHub Pages.
-        // Asegúrate que tus fotos están en la carpeta 'img/' y se llaman foto1.jpg, foto2.jpg, etc.
+        // ¡IMPORTANTE! Se antepone BASE_PATH para la ruta de GitHub Pages.
+        // Asumiendo que tus archivos se llaman foto1.jpg, foto2.jpg, etc.
         const BACKGROUND_IMAGES = [
             BASE_PATH + 'img/foto1.jpg',
             BASE_PATH + 'img/foto2.jpg',
@@ -332,8 +344,8 @@
             BASE_PATH + 'img/foto16.jpg',
         ];
         
-        const BACKGROUND_CHANGE_INTERVAL = 10000; 
-        const TRANSITION_DURATION = 2000; 
+        const BACKGROUND_CHANGE_INTERVAL = 10000; // 10 segundos
+        const TRANSITION_DURATION = 2000; // 2 segundos
         let currentImageIndex = 0;
 
         function changeBackground() {
@@ -348,7 +360,7 @@
                 currentImageIndex = (currentImageIndex + 1) % BACKGROUND_IMAGES.length;
                 const imageUrl = BACKGROUND_IMAGES[currentImageIndex];
                 
-                // 4. Cambiar la imagen de fondo 
+                // 4. Precargar la imagen antes de mostrarla para evitar el parpadeo
                 const img = new Image();
                 img.onload = () => {
                     slider.style.backgroundImage = `url('${imageUrl}')`;
@@ -359,6 +371,7 @@
 
                 img.onerror = () => {
                     console.error("Fallo al cargar la imagen:", imageUrl);
+                    // Si falla una, intenta con la siguiente inmediatamente
                     changeBackground(); 
                 };
 
@@ -366,12 +379,22 @@
         }
 
         // -----------------------------------------------------
-        // 1. RELOJ & FECHA
+        // 1. RELOJ & FECHA (ACTUALIZADO A 12 HORAS)
         // -----------------------------------------------------
         function updateClock() {
             const now = new Date();
-            document.getElementById('hh').innerText = String(now.getHours()).padStart(2,'0');
-            document.getElementById('mm').innerText = String(now.getMinutes()).padStart(2,'0');
+            let h = now.getHours();
+            const m = String(now.getMinutes()).padStart(2, '0');
+            
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            
+            // Conversión a formato 12 horas
+            h = h % 12;
+            h = h ? h : 12; // La hora '0' (medianoche) se convierte en '12'
+            
+            document.getElementById('hh').innerText = String(h).padStart(2, '0');
+            document.getElementById('mm').innerText = m;
+            document.getElementById('ampm').innerText = ampm; 
             
             const dayName = now.toLocaleDateString('es-ES', { weekday: 'long' });
             document.getElementById('day-name').innerText = dayName;
