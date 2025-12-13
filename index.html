@@ -176,36 +176,28 @@
             .date-day { font-size: 3.5vh; }
         }
 
-        /* 2. Ajustes para Teléfonos/Tablets (Landscape - Baja altura) */
+        /* 2. Ajustes de estabilidad para PANTALLAS CORTAS (Landscape) */
         @media (max-height: 500px) and (orientation: landscape) {
-            .left-column { 
-                width: 60%; 
-                gap: 8px; 
-            }
-            .right-column { 
-                width: 40%; 
-            }
+            .left-column { width: 62%; gap: 8px; }
+            .right-column { width: 38%; }
             .time-widget { flex: 60; padding: 0; } 
             .info-widget { flex: 40; padding: 5px 15px; }
-            .time-text { 
-                font-size: 16vh; 
-                line-height: 0.8; 
-                letter-spacing: -1vh; 
-            } 
-            .blink { margin-top: -1vh; }
-            .date-day { font-size: 4vh; line-height: 0.9; } 
-            .date-full { font-size: 1.8vh; } 
-            .w-temp { font-size: 4vh; } 
-            .w-icon { font-size: 4vh; } 
-            .w-desc { display: block; font-size: 1.5vh; } 
-            .ampm-text { font-size: 3vh; margin-bottom: 2vh; }
+            /* Corregido de 38vh a 18vh para evitar desbordes */
+            .time-text { font-size: 18vh; line-height: 0.75; letter-spacing: -1.5vh; }
+            .blink { margin-top: -2vh; }
+            .date-day { font-size: 5vh; line-height: 0.9; } 
+            .date-full { font-size: 2vh; } 
+            .w-temp { font-size: 5vh; } 
+            .w-icon { font-size: 5vh; } 
+            .w-desc { display: block; font-size: 1.8vh; } 
+            .ampm-text { font-size: 4vh; margin-bottom: 2vh; }
             .calendar-widget { padding: 8px; }
-            .cal-header { font-size: 2vh; margin-bottom: 5px; padding-bottom: 2px; }
-            .cal-cell { font-size: 1.8vh; }
-            .cal-day-label { font-size: 1.5vh; }
+            .cal-header { font-size: 2.5vh; margin-bottom: 5px; padding-bottom: 2px; }
+            .cal-cell { font-size: 2.8vh; }
+            .cal-day-label { font-size: 1.8vh; }
         }
 
-        /* 3. Ajustes para Tablets (min-width: 769px) - ESTABILIZADO PARA IPAD */
+        /* 3. Ajustes para Tablets (min-width: 769px) - MAXIMIZADO PARA IPAD */
         @media (min-width: 769px) and (max-width: 1300px) and (min-height: 500px) {
             
             /* Ajuste de Contenedor */
@@ -217,43 +209,43 @@
             
             /* Ajuste de Columnas: */
             .left-column { 
-                width: 60%; 
-                gap: 15px;
+                width: 65%; /* Más espacio para la hora y el clima */
+                gap: 20px;
             } 
             .right-column { 
-                width: 40%; 
+                width: 35%; /* Calendario */
             }
 
-            /* RELOJ: Reducción del flex para dar espacio, tamaño de fuente controlado */
+            /* RELOJ: Maximizado (25vh) */
             .time-widget { 
-                flex: 1.5; 
+                flex: 2; /* Más grande */
             }
             .time-text {
-                font-size: 18vh; 
+                font-size: 25vh; /* Aumentado drásticamente */
                 letter-spacing: -6px;
             }
             .ampm-text {
-                font-size: 3.5vh; 
-                margin-bottom: 2vh;
+                font-size: 4vh; 
+                margin-bottom: 3vh;
                 padding-bottom: 5px;
             }
             
             /* INFO: Fecha y Clima (Asegurando que todo se vea) */
             .info-widget { 
                 flex: 1; 
-                padding: 15px 30px; 
+                padding: 20px 30px; 
             }
             .date-group { padding-right: 25px; }
-            .date-day { font-size: 4vh; } 
-            .date-full { font-size: 2vh; } 
-            .w-temp, .w-icon { font-size: 5vh; } 
-            .w-desc { font-size: 1.8vh; }
+            .date-day { font-size: 5vh; } 
+            .date-full { font-size: 2.5vh; } 
+            .w-temp, .w-icon { font-size: 6vh; } 
+            .w-desc { font-size: 2vh; }
 
-            /* CALENDARIO: Ajustado para mayor legibilidad */
-            .calendar-widget { padding: 15px; }
-            .cal-header { font-size: 2.5vh; margin-bottom: 15px; } 
-            .cal-day-label { font-size: 1.6vh; } 
-            .cal-cell { font-size: 2.2vh; } 
+            /* CALENDARIO: Maximizando legibilidad */
+            .calendar-widget { padding: 20px; }
+            .cal-header { font-size: 3.5vh; margin-bottom: 15px; } /* Grande */
+            .cal-day-label { font-size: 2vh; } 
+            .cal-cell { font-size: 2.8vh; } /* Números grandes */
         }
     </style>
 </head>
@@ -314,7 +306,6 @@
             const timeKey = isDay ? 'day' : 'night';
             const conditionKey = weatherCondition; 
             
-            // Elimina todas las clases y añade las nuevas
             body.classList.remove('day', 'night', 'clear', 'cloudy', 'rainy'); 
             body.classList.add(timeKey, conditionKey);
         }
@@ -327,16 +318,15 @@
             let h = now.getHours();
             const m = String(now.getMinutes()).padStart(2, '0');
             
-            // Lógica AM/PM
             const ampm = h >= 12 ? 'PM' : 'AM';
+            
             h = h % 12;
-            h = h ? h : 12; // La hora '0' (medianoche) se convierte a '12'
+            h = h ? h : 12; 
             
             document.getElementById('hh').innerText = String(h).padStart(2, '0');
             document.getElementById('mm').innerText = m;
             document.getElementById('ampm').innerText = ampm; 
             
-            // Fecha
             const dayName = now.toLocaleDateString('es-ES', { weekday: 'long' });
             document.getElementById('day-name').innerText = dayName;
             document.getElementById('full-date').innerText = now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
@@ -359,7 +349,6 @@
             const grid = document.getElementById('cal-grid');
             grid.innerHTML = '';
 
-            // Etiquetas de los días de la semana (D, L, M, etc.)
             ['D','L','M','M','J','V','S'].forEach(d => {
                 const el = document.createElement('div');
                 el.className = 'cal-day-label';
@@ -367,13 +356,11 @@
                 grid.appendChild(el);
             });
 
-            const firstDay = new Date(year, month, 1).getDay(); // 0 (Domingo) a 6 (Sábado)
+            const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            // Rellenar espacios vacíos antes del primer día del mes
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
 
-            // Días del mes
             for(let i=1; i<=daysInMonth; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cal-cell';
@@ -387,11 +374,10 @@
         // 3. CLIMA REAL (Open-Meteo)
         // -----------------------------------------------------
 
-        const LAT = 19.34537; // Coordenadas de ejemplo (Cerca de Ciudad de México)
+        const LAT = 19.34537; 
         const LON = -99.12317; 
         const WEATHER_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&forecast_days=1&timezone=America%2FMexico_City`;
 
-        // Mapeo de códigos WMO a iconos y condiciones
         const WMO_MAP = {
             0: { icon: '☀️', desc: 'Despejado', condition: 'clear' }, 1: { icon: '🌤️', desc: 'Mayormente despejado', condition: 'clear' },
             2: { icon: '⛅', desc: 'Parcialmente nublado', condition: 'cloudy' }, 3: { icon: '☁️', desc: 'Nublado', condition: 'cloudy' },
@@ -420,7 +406,7 @@
                 document.getElementById('w-desc').innerText = weatherInfo.desc;
 
                 weatherCondition = weatherInfo.condition; 
-                applyDynamicBackground(); // Reaplicar el fondo basado en la nueva condición
+                applyDynamicBackground(); 
 
             } catch (error) {
                 console.error("Error al obtener el clima:", error);
@@ -441,7 +427,7 @@
         }
 
         // -----------------------------------------------------
-        // INICIAR 
+        // INICIAR (USANDO window.onload PARA MÁXIMA ESTABILIDAD)
         // -----------------------------------------------------
         
         window.onload = function() {
@@ -450,4 +436,15 @@
             buildCalendar(); 
             fetchWeather(); 
 
-    
+            // Tarea repetida: Reloj y Fondo (cada segundo)
+            setInterval(updateClock, 1000);
+
+            // Tarea repetida: Calendario (cada hora)
+            setInterval(buildCalendar, 3600000); 
+
+            // Tarea repetida: Clima y Fondo (cada 15 minutos)
+            setInterval(fetchWeather, 900000); 
+        };
+    </script>
+</body>
+</html>
