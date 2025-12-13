@@ -161,7 +161,7 @@
         .cal-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 1.8vh; border-radius: 50%; cursor: default; }
         .today { background: #fff; color: #0f2027; font-weight: 900; box-shadow: 0 0 15px rgba(255,255,255,0.7); }
 
-        /* --- RESPONSIVE ADJUSTMENTS --- */
+        /* --- RESPONSIVE ADJUSTMENTS (Corregidos para iPad) --- */
         
         /* 1. Ajustes para Teléfonos (Portrait) */
         @media (max-width: 768px) and (orientation: portrait) {
@@ -176,31 +176,41 @@
             .date-day { font-size: 3.5vh; }
         }
 
-        /* 2. Ajustes para Teléfonos (Landscape) - Modificado para reducir el tamaño del reloj */
+        /* 2. Ajustes para Teléfonos/Tablets (Landscape - Baja altura) - CLAVE PARA IPAD MINI */
         @media (max-height: 500px) and (orientation: landscape) {
-            .left-column { width: 62%; gap: 8px; }
-            .right-column { width: 38%; }
+            .left-column { 
+                width: 60%; /* Reajustado para dar más espacio a la derecha */
+                gap: 8px; 
+            }
+            .right-column { 
+                width: 40%; 
+            }
             .time-widget { flex: 60; padding: 0; } 
             .info-widget { flex: 40; padding: 5px 15px; }
-            /* Reducido de 38vh a 25vh para evitar desbordamiento en pantallas muy cortas */
-            .time-text { font-size: 25vh; line-height: 0.75; letter-spacing: -1.5vh; } 
-            .blink { margin-top: -2vh; }
-            .date-day { font-size: 8vh; line-height: 0.9; } 
-            .date-full { font-size: 2.5vh; } 
-            .w-temp { font-size: 8vh; } 
-            .w-icon { font-size: 8vh; } 
-            .w-desc { display: block; font-size: 2vh; } 
-            .ampm-text { font-size: 6vh; margin-bottom: 2vh; }
+            /* Tamaño de fuente corregido a 16vh (de 38vh) para evitar desborde */
+            .time-text { 
+                font-size: 16vh; 
+                line-height: 0.8; 
+                letter-spacing: -1vh; 
+            } 
+            .blink { margin-top: -1vh; }
+            
+            /* Ajustes menores de tamaño */
+            .date-day { font-size: 4vh; line-height: 0.9; } 
+            .date-full { font-size: 1.8vh; } 
+            .w-temp { font-size: 4vh; } 
+            .w-icon { font-size: 4vh; } 
+            .w-desc { display: block; font-size: 1.5vh; } 
+            .ampm-text { font-size: 3vh; margin-bottom: 2vh; }
             .calendar-widget { padding: 8px; }
-            .cal-header { font-size: 3vh; margin-bottom: 5px; padding-bottom: 2px; }
-            .cal-cell { font-size: 3.2vh; }
-            .cal-day-label { font-size: 2vh; }
+            .cal-header { font-size: 2vh; margin-bottom: 5px; padding-bottom: 2px; }
+            .cal-cell { font-size: 1.8vh; }
+            .cal-day-label { font-size: 1.5vh; }
         }
 
-        /* 3. NUEVO BLOQUE: Ajustes para Tablets (Landscape) - Solución para iPad */
+        /* 3. Ajustes para Tablets grandes (opcional, manteniendo el original para otros tablets) */
         @media (min-width: 769px) and (max-width: 1300px) and (min-height: 500px) {
             .time-text {
-                /* Reducido de 18vh a 15vh para mejor ajuste en iPads */
                 font-size: 15vh; 
                 letter-spacing: -4px;
             }
@@ -214,11 +224,9 @@
                 height: 95vh;
                 gap: 10px;
             }
-            /* Asegura que la columna izquierda no sea demasiado grande en un iPad horizontal */
             .left-column { width: 65%; } 
             .right-column { width: 35%; }
             
-            /* Ajustes en los widgets de información */
             .date-day { font-size: 3.5vh; }
             .w-temp { font-size: 4.5vh; } 
             .w-icon { font-size: 4.5vh; } 
@@ -361,7 +369,7 @@
         const LON = -99.12317; 
         const WEATHER_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&forecast_days=1&timezone=America%2FMexico_City`;
 
-        // Mapeo de códigos WMO a iconos y condiciones (Adaptado para mejor legibilidad del código)
+        // Mapeo de códigos WMO a iconos y condiciones
         const WMO_MAP = {
             0: { icon: '☀️', desc: 'Despejado', condition: 'clear' }, 1: { icon: '🌤️', desc: 'Mayormente despejado', condition: 'clear' },
             2: { icon: '⛅', desc: 'Parcialmente nublado', condition: 'cloudy' }, 3: { icon: '☁️', desc: 'Nublado', condition: 'cloudy' },
@@ -411,7 +419,7 @@
         }
 
         // -----------------------------------------------------
-        // INICIAR (USANDO window.onload PARA MÁXIMA ESTABILIDAD)
+        // INICIAR 
         // -----------------------------------------------------
         
         window.onload = function() {
@@ -426,9 +434,5 @@
             // Tarea repetida: Calendario (cada hora)
             setInterval(buildCalendar, 3600000); 
 
-            // Tarea repetida: Clima y Fondo (cada 15 minutos)
-            setInterval(fetchWeather, 900000); 
-        };
-    </script>
-</body>
-</html>
+            // Tarea repetida: Clima y Fondo (cada
+        
